@@ -22,7 +22,7 @@ export default function LoginPage() {
       if (isLogin) {
         const res: any = await api.post('/auth/login', { email: form.email, password: form.password })
         login(res.access_token, res.user)
-        router.push('/')
+        router.push('/home')
       } else {
         await api.post('/auth/register', form)
         setIsLogin(true)
