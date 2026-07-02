@@ -13,16 +13,30 @@ import { AiModule } from './ai/ai.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (cfg: ConfigService) => ({
-        type: 'postgres',
-        host: cfg.get('DB_HOST', 'localhost'),
-        port: +cfg.get('DB_PORT', 5432),
-        username: cfg.get('DB_USERNAME', 'postgres'),
-        password: cfg.get('DB_PASSWORD'),
-        database: cfg.get('DB_NAME', 'sportsbook'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
-      }),
+      useFactory: (cfg: ConfigService) => {
+        const databaseUrl = cfg.get<string>('DATABASE_URL');
+        if (databaseUrl) {
+          return {
+            type: 'postgres' as const,
+            url: databaseUrl,
+            entities: [__dirname + '/**/*.entity{.ts,.js}'],
+            synchronize: true,
+            ssl: databaseUrl.includes('railway.internal')
+              ? false
+              : { rejectUnauthorized: false },
+          };
+        }
+        return {
+          type: 'postgres' as const,
+          host: cfg.get('DB_HOST', 'localhost'),
+          port: +cfg.get('DB_PORT', 5432),
+          username: (cfg.get('DB_USERNAME', 'postgres') as string).trim(),
+          password: (cfg.get('DB_PASSWORD', '') as string).trim(),
+          database: cfg.get('DB_NAME', 'sportsbook'),
+          entities: [__dirname + '/**/*.entity{.ts,.js}'],
+          synchronize: true,
+        };
+      },
     }),
     AuthModule,
     UsersModule,
