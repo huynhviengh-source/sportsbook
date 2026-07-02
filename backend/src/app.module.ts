@@ -28,11 +28,11 @@ import { AiModule } from './ai/ai.module';
         }
         return {
           type: 'postgres' as const,
-          host: cfg.get('DB_HOST', 'localhost'),
-          port: +cfg.get('DB_PORT', 5432),
-          username: (cfg.get('DB_USERNAME', 'postgres') as string).trim(),
-          password: (cfg.get('DB_PASSWORD', '') as string).trim(),
-          database: cfg.get('DB_NAME', 'sportsbook'),
+          host: cfg.get<string>('DB_HOST', 'localhost'),
+          port: +cfg.get<string>('DB_PORT', '5432'),
+          username: cfg.get<string>('DB_USERNAME', 'postgres').trim(),
+          password: cfg.get<string>('DB_PASSWORD', '').trim(),
+          database: cfg.get<string>('DB_NAME', 'sportsbook'),
           entities: [__dirname + '/**/*.entity{.ts,.js}'],
           synchronize: true,
         };
